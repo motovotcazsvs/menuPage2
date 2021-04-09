@@ -8,9 +8,9 @@ import QtGraphicalEffects 1.0
 Window {
     id: winn
     visible: true
-    //visibility: Window.FullScreen //для малинки
-    width: 600 //для пк
-    height: 1024 //для пк
+    visibility: Window.FullScreen //для малинки
+    //width: 600 //для пк
+    //height: 1024 //для пк
     flags: Qt.FramelessWindowHint
 
     //property real buttons_width: 230
@@ -53,10 +53,10 @@ Window {
     property real clock_arrow_shift_x: 0
     property real clock_arrow_shift_y: 0
 
-    property real but_text_size: 14
+    property real but_text_size: 15
     property bool rec_range_color_set: false
 
-    property real shiftXPage2: 0
+    property real shiftXPage2: -60
     property real shiftYPage2: 0
 
     function timeChanged() {
@@ -83,20 +83,14 @@ Window {
         initialItem: mainView
         anchors.fill: parent
 /*
-        delegate: StackViewDelegate {
-            pushTransition: StackViewTransition {
-            }
-        }
-        */
-
-        delegate: StackViewDelegate {
+        delegate: StackViewDelegate { //переход со средины
             pushTransition: StackViewTransition {
                 PropertyAnimation {
                     target: enterItem
                     property: "scale"
                     from: 0
                     to: 1
-
+                    duration: 500
                 }
 
                 PropertyAnimation {
@@ -104,12 +98,35 @@ Window {
                     property: "scale"
                     from: 1
                     to: 0
-
+                    duration: 10
 
                 }
             }
         }
+*/
+        delegate: StackViewDelegate {//горизонтальный переход
+            function transitionFinished(properties)
+            {
+                properties.exitItem.x = 0
+            }
 
+            pushTransition: StackViewTransition {
+                PropertyAnimation {
+                    target: enterItem
+                    property: "x"
+                    from: enterItem.width
+                    to: 0
+                    duration: 500
+                }
+                PropertyAnimation {
+                    target: exitItem
+                    property: "x"
+                    from: 0
+                    to: exitItem.width
+                    duration: 500
+                }
+            }
+        }
     }
 
     Page {
@@ -147,7 +164,7 @@ Window {
                     id: recB1But1
                     anchors.fill: recB1Rec1
                     onClicked: {
-                        console.log("Button 11111111 clicked.");
+                        console.log("Button 11111111 clicked." + hours);
                         stack.push(view2);
                     }
                 }
@@ -155,6 +172,7 @@ Window {
                 Text {
                     id: nameButton1
                     anchors.bottom: recB1Rec1.bottom
+                    anchors.bottomMargin: 8
                     anchors.horizontalCenter: recB1Rec1.horizontalCenter
                     text: qsTr("ИЗМЕРЕНИЕ")
                     color: (recB1But1.pressed || recB1But2.pressed || recB1But3.pressed || recB1But4.pressed || recB1But5.pressed)
@@ -163,6 +181,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -287,7 +306,7 @@ Window {
 
                 transform: Rotation {
                     id: hourRotation
-                    angle: (hours * 30) - 29
+                    angle: ((hours * 30) + (minutes * 0.5)) - 29
                     origin.x: 4
                     origin.y: 28
                 }
@@ -324,6 +343,17 @@ Window {
                     origin.y: 35
                 }
             }
+
+            Rectangle {
+                id: circleClock
+                x: 95
+                y: 87
+                width: 12
+                height: 12
+                radius: 6
+                color: "#818282"
+                //color: "transparent"
+            }
         }
 
         Rectangle {
@@ -357,6 +387,7 @@ Window {
                 Text {
                     id: nameButton3
                     anchors.bottom: recB3Rec1.bottom
+                    anchors.bottomMargin: 10
                     anchors.horizontalCenter: recB3Rec1.horizontalCenter
                     text: qsTr("РЕЗУЛЬТАТЫ")
                     color: (recB3But1.pressed || recB3But2.pressed || recB3But3.pressed || recB3But4.pressed || recB3But5.pressed)
@@ -365,6 +396,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -507,15 +539,17 @@ Window {
 
                 Text {
                     id: nameButton4
-                    anchors.bottom: recB4Rec1.bottom
+                    anchors.top: recB4Rec1.top
+                    anchors.topMargin: 59
                     anchors.horizontalCenter: recB4Rec1.horizontalCenter
-                    text: qsTr("КОНТРОЛЬ<br>КАЧЕСТВА")
+                    text: qsTr("КОНТРОЛЬ")
                     color: (recB4But1.pressed || recB4But2.pressed || recB4But3.pressed || recB4But4.pressed || recB4But5.pressed)
                     ? "white"
                     : "#9A8DCC"
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -524,6 +558,32 @@ Window {
                              ? false : true
                       anchors.fill: nameButton4
                       source: nameButton4
+                      horizontalOffset: 2
+                      color: "white"
+                      radius: 0
+                      samples: 3
+                }
+
+                Text {
+                    id: nameButton4NextText
+                    anchors.top: nameButton4.bottom
+                    anchors.horizontalCenter: recB4Rec1.horizontalCenter
+                    text: qsTr("КАЧЕСТВА")
+                    color: (recB4But1.pressed || recB4But2.pressed || recB4But3.pressed || recB4But4.pressed || recB4But5.pressed)
+                    ? "white"
+                    : "#9A8DCC"
+                    font.family: "Helvetica"
+                    font.bold: true
+                    font.pixelSize: but_text_size
+                    font.letterSpacing: 1
+                }
+
+                DropShadow {
+                      id: shadowTextBut4NextText
+                      visible: (recB4But1.pressed || recB4But2.pressed || recB4But3.pressed || recB4But4.pressed || recB4But5.pressed)
+                             ? false : true
+                      anchors.fill: nameButton4NextText
+                      source: nameButton4NextText
                       horizontalOffset: 2
                       color: "white"
                       radius: 0
@@ -670,11 +730,13 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 Text {
                     id: textTemperatureBut5
                     anchors.bottom: recB5Rec1.bottom
+                    anchors.bottomMargin: 3
                     anchors.horizontalCenter: recB5Rec1.horizontalCenter
                     text: "-0.8 °C"
                     color: {
@@ -689,6 +751,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -855,6 +918,7 @@ Window {
                 Text {
                     id: nameButton6
                     anchors.bottom: recB6Rec1.bottom
+                    anchors.bottomMargin: 8
                     anchors.horizontalCenter: recB6Rec1.horizontalCenter
                     text: qsTr("ОШИБКА")
                     color: {
@@ -873,6 +937,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1011,6 +1076,7 @@ Window {
                 Text {
                     id: nameButton7
                     anchors.bottom: recB7Rec1.bottom
+                    anchors.bottomMargin: 7
                     anchors.horizontalCenter: recB7Rec1.horizontalCenter
                     text: qsTr("СЛУЖЕБНЫЕ")
                     color: (recB7But1.pressed || recB7But2.pressed || recB7But3.pressed || recB7But4.pressed|| recB7But5.pressed)
@@ -1019,6 +1085,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1175,6 +1242,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1212,6 +1280,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1505,6 +1574,7 @@ Window {
                 Text {
                     id: nameButton3Page2
                     anchors.bottom: recB3Rec1Page2.bottom
+                    anchors.bottomMargin: 10
                     anchors.horizontalCenter: recB3Rec1Page2.horizontalCenter
                     text: qsTr("КРОВЬ")
                     color: (recB3But1Page2.pressed || recB3But2Page2.pressed || recB3But3Page2.pressed || recB3But4Page2.pressed || recB3But5Page2.pressed)
@@ -1513,6 +1583,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1658,6 +1729,7 @@ Window {
                 Text {
                     id: nameButton4Page2
                     anchors.bottom: recB4Rec1Page2.bottom
+                    anchors.bottomMargin: 10
                     anchors.horizontalCenter: recB4Rec1Page2.horizontalCenter
                     text: qsTr("СЫВОРОТКА")
                     color: (recB4But1Page2.pressed || recB4But2Page2.pressed || recB4But3Page2.pressed || recB4But4Page2.pressed || recB4But5Page2.pressed)
@@ -1666,6 +1738,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1800,6 +1873,7 @@ Window {
                 Text {
                     id: nameButton5Page2
                     anchors.bottom: recB5Rec1Page2.bottom
+                    anchors.bottomMargin: 10
                     anchors.horizontalCenter: recB5Rec1Page2.horizontalCenter
                     text: qsTr("СТАНДАРТ")
                     color: (recB5But1Page2.pressed || recB5But2Page2.pressed || recB5But3Page2.pressed || recB5But4Page2.pressed || recB5But5Page2.pressed)
@@ -1808,6 +1882,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
@@ -1947,6 +2022,7 @@ Window {
                 Text {
                     id: nameButton7Page2
                     anchors.bottom: recB7Rec1Page2.bottom
+                    anchors.bottomMargin: 11
                     anchors.horizontalCenter: recB7Rec1Page2.horizontalCenter
                     text: qsTr("НАЗАД")
                     color: (recB7But1Page2.pressed || recB7But2Page2.pressed || recB7But3Page2.pressed || recB7But4Page2.pressed|| recB7But5Page2.pressed)
@@ -1955,6 +2031,7 @@ Window {
                     font.family: "Helvetica"
                     font.bold: true
                     font.pixelSize: but_text_size
+                    font.letterSpacing: 1
                 }
 
                 DropShadow {
